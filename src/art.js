@@ -1,40 +1,24 @@
 class Art {
-    // remember objects
+   
     static all = []
-        // this is from the first fetch request & a method will need to be set to delete from front end
-    static artsContainer = document.getElementById('arts-container')
-    static artForm = document.getElementById('form-container')
-    
+    static artsContainer = () => document.getElementById('arts-container')
+    static artForm = document.getElementById('form-container')    
 
     constructor({id, title, artist, description, image_url, artist_id}){
-        this.id = id
-        this.title = title
-        this.artist = artist
-        this.description = description
-        this.image_url = image_url
-        this.artist_id = artist_id
-
+        Object.assign(this, {id, title, artist, description, image_url, artist_id})
+     
         this.element = document.createElement('li')
-        this.element.dataset.id = this.id
-            // dataset is an attribute of the html element
-        this.element.id = `art-${this.id}`
         this.element.addEventListener('click', this.handleClick)
        
         Art.all.push(this)
-        // this refers to the newly create object
     }
 
-    // create the inner html for this.element
     artHTML(){
-        this.element.innerHTML += `
+        this.element.innerHTML = `
         <div>
-        <img data-id=${this.id} class="art-img" src=${this.image_url} width="500" 
-        height=auto/>
-            <h3><font face = "marker felt"><font color = "navy">${this.title}</font></font><br>
-            <font face = "big caslon"><font color = "darkgreen">${this.artist ? this.artist.name : 'Artist Unknown'} <br>
-            ${this.description}</font></font></h3><br>
+        <h3><font face = "marker felt"><font color = "navy" class="art-title">${this.title}</font></font><br>
+        <img data-id=${this.id} class="art-img" src=${this.image_url} width="200" height=auto/>
         </div>
-       
         <button id='delete-bttn'>Delete</button>
         <br>
         <br>
@@ -42,11 +26,11 @@ class Art {
         return this.element
     }
 
-
     addToDom(){
-        Art.artsContainer.append(this.artHTML())
+        Art.artsContainer().append(this.artHTML())
+        const img = this.element.querySelector('.art-img')
+        img.addEventListener('click', this.showTheArtDeets)
     }
-
 
     static renderForm(){
         Art.artForm.innerHTML += `
@@ -56,43 +40,48 @@ class Art {
         Description: <input type="text" id="description"><br>
         Image Url: <input type="text" id="image_url"> </font> </font>
         <input type="submit" id="create">
-        <form>
+        </form>
         `
     }
 
-//     artShow(){
-//      const id = event.target.dataset.id
-//      fetch(`http://localhost:3000/arts/${id}`)
-//     .then(resp => resp.json())
-//     .then(art => {
-//         const {title, image_url, artist, description} = art
-//         artsContainer.innerHTML = ''
-//         artsContainer.innerHTML += `
-//         <img src=${image_url} />
-//         Title: ${title}
-//         <br>
-//         Artist: ${artist}
-//         <br>
-//         Description: ${description}
-//         <br>
-//         <br>
-//         <a  id="back-bttn" href="#">Back</a>
-//         `
-//         const backBttn = document.getElementById('back-bttn')
-//         backBttn.addEventListener('click', goBack)
-//     })
-//     }  
-//  goBack(){
-//     artsContainer.innerHTML = ''
-//     getArts()
-//  }
-
-    handleClick = ()  => {
-        if (event.target.innerText === 'Delete'){
-            // this.element.remove()
+    handleClick = () => {
+        if (event.target.innerText === 'Delete') 
             artService.deleteArt(this.id, this.element)
-        }
+    }
+    
+    showTheArtDeets = (event) => {
+        Art.artsContainer().innerHTML = `
+        <img src=${this.image_url} width="500" height=auto/> <br>
+        <h3><font face = "marker felt"><font color = "navy">Title: ${this.title ? this.title : 'Untitled is so cliche'}</font></font><br>
+        <font face = "big caslon"><font color = "darkgreen">Artist: ${this.artist ? this.artist.name : 'Who will claim this masterpiece?'} <br>
+        Description: ${this.description ? this.description : 'Details forthcoming'}<br>
+        Video tutorial coming soon!</font></font></h3><br>  
+        <br>
+        <a  id="back-bttn" href="#">Back</a>
+        `
+        const backBttn = document.getElementById('back-bttn')
+        backBttn.addEventListener('click', this.goBack)
     }
 
+    goBack = () => { 
+        Art.artsContainer().innerHTML = ''
+            // artService.getArts()
+            Art.all.forEach((art) => {
+                art.addToDom()    
+            })
+    }
     
-}
+    static alphaSort = () => {
+    
+        Art.artsContainer().innerHTML = ''
+           const sortedArray = Art.all.sort((a,b) => {
+            if (a.title.toUpperCase() < b.title.toUpperCase()
+                ) return -1
+            if (a.title.toUpperCase() > b.title.toUpperCase()
+                ) return 1
+            return 0
+        })
+        sortedArray.forEach((art) => {
+            art.addToDom()
+        })
+    }

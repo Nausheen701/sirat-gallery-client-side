@@ -1,24 +1,20 @@
 class ArtService{
 
-    // sets properties for the object like the initialize method
     constructor(endpoint){
         this.endpoint = endpoint
-        // this is accepting the base url as an endpoint 
-        // this.endpoint is set equal to what we pass in
     }
-
-
-    // 1: Read/Index action 
 
     getArts(){
         fetch(`${this.endpoint}/arts`)
         .then(resp => resp.json())
         .then(arts => {
+            console.log(arts)
             for (const art of arts){
                 const a = new Art(art)
                 a.addToDom()
-            }
+            }   
         })
+        debugger
     }
 
     createArt(){
@@ -45,7 +41,6 @@ class ArtService{
         })
     }
 
-
     deleteArt(id, element){
             fetch(`${this.endpoint}/arts/${id}`, {
             method: 'DELETE',
@@ -57,9 +52,7 @@ class ArtService{
         .then(json => {
             element.remove() 
             alert(json.message)
-        })
-       
-    }
-
+        })     
+    }  
 }
 
